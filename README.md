@@ -9,22 +9,6 @@ A thread-safe, console-based movie ticket booking system built in Java. This pro
 * **Data Integrity**: Uses custom exceptions (`BookingConflictException`, `InvalidSeatException`) to handle edge cases and invalid inputs safely.
 * **Modular Design**: Structured using Java packages to separate the model (Entities), logic (Show), and execution (Main).
 
-## Project Structure
-
-The project is organized into a modular package structure:
-
-MultiplexBookingSystem/
-│
-├── Main.java                # Entry point: Sets up data and runs the simulation
-├── README.md                # Project documentation
-│
-└── multiplex/               # Package containing core logic
-    ├── Show.java            # Core logic for booking and synchronization
-    ├── Booking.java         # Represents a confirmed transaction
-    ├── Movie.java           # Movie entity (Title, Genre)
-    ├── Screen.java          # Abstract class with subclasses for IMAX/Standard
-    ├── User.java            # User entity
-    └── MultiplexExceptions.java # Custom exceptions
 
 ## Tech Stack
 
