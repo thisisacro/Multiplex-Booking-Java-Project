@@ -10,7 +10,7 @@ A thread-safe, console-based movie ticket booking system built in Java. This pro
 * **Modular Design**: Structured using Java packages to separate the model (Entities), logic (Show), and execution (Main).
 
 
-## Tech Stack
+## Tech Stack 
 
 * **Language**: Java (JDK 8+)
 * **Concepts**: Multithreading, Synchronization, OOP (Inheritance, Polymorphism, Encapsulation), Exception Handling.
