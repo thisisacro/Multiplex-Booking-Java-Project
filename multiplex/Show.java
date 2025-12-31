@@ -1,22 +1,24 @@
 package multiplex;
 
-import java.util.*;
-import multiplex.MultiplexExceptions.*; // Import our custom exceptions
+import multiplex.MultiplexExceptions.*;
 
 public class Show {
     private Movie movie;
     private Screen screen;
     private double basePrice;
-    private Set<Integer> bookedSeats; // Stores taken seats
+    
+    // PRIMITIVE ARRAY: index = seat number, value = is booked?
+    // Size will be totalSeats + 1 (so we can use index 1 for seat 1)
+    private boolean[] seatStatus; 
 
     public Show(Movie movie, Screen screen, double basePrice) {
         this.movie = movie;
         this.screen = screen;
         this.basePrice = basePrice;
-        this.bookedSeats = new HashSet<>();
+        // Initialize array. Default value of boolean is false (empty).
+        this.seatStatus = new boolean[screen.getTotalSeats() + 1];
     }
 
-    // Creating screens via static helper methods (Factory pattern simplified)
     public static Screen createStandardScreen(int id, int seats) {
         return new StandardScreen(id, seats);
     }
@@ -25,26 +27,33 @@ public class Show {
         return new IMAXScreen(id, seats);
     }
 
-    // --- The Critical Method ---
-    // 'synchronized' prevents two users from booking the same seat at the same time
-    public synchronized Booking bookSeats(User user, List<Integer> seats) 
+    // Accept primitive int array
+    public synchronized Booking bookSeats(User user, int[] seats) 
             throws BookingConflictException, InvalidSeatException {
         
-        // 1. Check if seats are valid and available
-        for (Integer seat : seats) {
-            if (seat < 1 || seat > screen.getTotalSeats()) {
-                throw new InvalidSeatException("Seat " + seat + " does not exist.");
+        // 1. Validation Loop
+        for (int i = 0; i < seats.length; i++) {
+            int seatNumber = seats[i];
+
+            // Check bounds
+            if (seatNumber < 1 || seatNumber > screen.getTotalSeats()) {
+                throw new InvalidSeatException("Seat " + seatNumber + " does not exist.");
             }
-            if (bookedSeats.contains(seat)) {
-                throw new BookingConflictException("Seat " + seat + " is already booked!");
+            
+            // Check availability (O(1) lookup in array)
+            if (seatStatus[seatNumber]) {
+                throw new BookingConflictException("Seat " + seatNumber + " is already booked!");
             }
         }
 
-        // 2. Book them
-        bookedSeats.addAll(seats);
+        // 2. Booking Loop (Update boolean array)
+        for (int i = 0; i < seats.length; i++) {
+            int seatNumber = seats[i];
+            seatStatus[seatNumber] = true;
+        }
 
         // 3. Calculate Cost
-        double totalCost = basePrice * screen.getPriceMultiplier() * seats.size();
+        double totalCost = basePrice * screen.getPriceMultiplier() * seats.length;
 
         return new Booking(user, movie.getTitle(), seats, totalCost);
     }
