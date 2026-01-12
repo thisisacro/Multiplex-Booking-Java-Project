@@ -8,18 +8,25 @@ public class Main {
     public static void main(String[] args) {
         
         Movie avatar = new Movie("Avatar 2", "Sci-Fi");
-        Screen imax = Show.createIMAXScreen(1, 10); 
-        Show eveningShow = new Show(avatar, imax, 20.0); 
 
-        System.out.println("=== MULTIPLEX BOOKING SYSTEM (PRIMITIVE VERSION) ===");
+        // 1. Create TWO screens
+        Screen standardScreen = Show.createStandardScreen(1, 10);
+        Screen imaxScreen = Show.createIMAXScreen(2, 10); 
+
+        // 2. Create TWO shows (Same movie, different screens)
+        // Base price is $20.0 for both, but multipliers will apply automatically
+        Show standardShow = new Show(avatar, standardScreen, 20.0); 
+        Show imaxShow = new Show(avatar, imaxScreen, 20.0); 
+
+        System.out.println("=== MULTIPLEX BOOKING SYSTEM ===");
         
         while (true) {
-            System.out.println("\n1. Book Tickets");
-            System.out.println("2. Run Concurrency Test");
+            System.out.println("\n--- MAIN MENU ---");
+            System.out.println("1. Book Tickets");
+            System.out.println("2. Run Concurrency Test (IMAX only)");
             System.out.println("3. Exit");
             System.out.print("Enter Choice: ");
 
-            // Helper to safely read int choice
             int choice = -1;
             try {
                 choice = Integer.parseInt(scanner.nextLine());
@@ -28,9 +35,28 @@ public class Main {
             }
 
             if (choice == 1) {
-                runInteractiveMode(eveningShow);
+                // 3. Ask user to choose screen type
+                System.out.println("\nSelect Screen Type:");
+                System.out.println("1. Standard Screen (1.0x Price)");
+                System.out.println("2. IMAX Screen     (1.5x Price)");
+                System.out.print("Enter Option: ");
+                
+                try {
+                    int screenChoice = Integer.parseInt(scanner.nextLine());
+                    
+                    if (screenChoice == 1) {
+                        runInteractiveMode(standardShow, "Standard");
+                    } else if (screenChoice == 2) {
+                        runInteractiveMode(imaxShow, "IMAX");
+                    } else {
+                        System.out.println("Invalid screen selection.");
+                    }
+                } catch (NumberFormatException e) {
+                    System.out.println("Invalid input.");
+                }
+
             } else if (choice == 2) {
-                runConcurrencyTest(eveningShow);
+                runConcurrencyTest(imaxShow); // Test runs on IMAX by default
             } else if (choice == 3) {
                 System.out.println("Goodbye!");
                 break;
@@ -40,8 +66,9 @@ public class Main {
         }
     }
 
-    private static void runInteractiveMode(Show show) {
-        System.out.println("\n--- NEW BOOKING ---");
+    // Updated to accept screen name for better display
+    private static void runInteractiveMode(Show show, String screenType) {
+        System.out.println("\n--- NEW BOOKING (" + screenType + ") ---");
         System.out.print("Enter Name: ");
         String name = scanner.nextLine();
         User user = new User(name);
@@ -50,7 +77,6 @@ public class Main {
         String line = scanner.nextLine();
 
         try {
-            // Manual String parsing to int[]
             String[] parts = line.split(",");
             int[] seats = new int[parts.length];
             
@@ -74,9 +100,7 @@ public class Main {
         User u1 = new User("Alice");
         User u2 = new User("Bob");
 
-        // Alice wants 5, 6
         final int[] seatsAlice = {5, 6};
-        // Bob wants 6, 7 (Conflict on 6)
         final int[] seatsBob = {6, 7};
 
         Runnable task1 = () -> {
